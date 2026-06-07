@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Voice Self-Bot (Pure Client)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #2c2f33; color: white; text-align: center; padding-top: 50px; }
+        .container { background-color: #23272a; padding: 40px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.5); max-width: 400px; width: 100%; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; font-size: 16px; background-color: #40444b; color: white; outline: none; }
+        input:focus { outline: 2px solid #7289da; }
+        button { padding: 12px 20px; font-size: 16px; margin: 10px 5px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; transition: 0.3s; width: 45%; }
+        button:hover { opacity: 0.8; }
+        .start { background-color: #43b581; color: white; }
+        .stop { background-color: #f04747; color: white; }
+        #status { margin-top: 20px; font-size: 18px; color: #faa61a; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quản lý Self-Bot Web</h1>
+        <p style="color: #b9bbbe; font-size: 14px;">Chạy trực tiếp trên trình duyệt - Không cần Server</p>
+        
+        <input type="password" id="token" placeholder="Nhập Token Discord" />
+        <input type="text" id="channelId" placeholder="Nhập ID Kênh Thoại" />
+        
+        <br>
+        <button class="start" onclick="startBot()">▶ Bật Bot</button>
+        <button class="stop" onclick="stopBot()">⏹ Tắt Bot</button>
+        
+        <div id="status">Trạng thái: Đang chờ lệnh...</div>
+    </div>
+
+    <script>
+        let ws = null;
+        let heartbeatInterval = null;
+        const CORS_PROXY = "https://corsproxy.io/?"; // Vượt lỗi CORS của trình duyệt
+
+        async function startBot() {
+            const token = document.getElementById('token').value.trim();
+            const channelId = document.getElementById('channelId').value.trim();
+            const statusDiv = document.getElementById('status');
+
+            if (!token || !channelId) {
+                alert("Vui lòng nhập đầy đủ Token và ID Kênh!");
+                return;
+            }
+
+            if (ws) {
+                statusDiv.innerText = "Trạng thái: Bot đang chạy rồi!";
+                return;
+            }
+
+            statusDiv.innerText = "Trạng thái: Đang lấy thông tin phòng...";
+
+            try {
+                // 1. Gửi request qua Proxy để lấy Guild ID từ Channel ID
+                const targetUrl = `https://discord.com/api/v9/channels/${channelId}`;
+                const response = await fetch(CORS_PROXY + encodeURIComponent(targetUrl), {
+                    headers: { "Authorization": token }
+                });
+
+                if (!response.ok) throw new Error("Token hoặc ID kênh không hợp lệ");
+                const channelData = await response.json();
+                const guildId = channelData.guild_id;
+
+                statusDiv.innerText = "Trạng thái: Đang kết nối Gateway...";
+
+                // 2. Khởi tạo mạng WebSocket kết nối thẳng tới cổng Discord
+                ws = new WebSocket("wss://gateway.discord.gg/?v=9&encoding=json");
+
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+
+                    // Opcode 10: Hello -> Bắt đầu duy trì mạng (Heartbeat) và Đăng nhập (Identify)
+                    if (data.op === 10) {
+                        const interval = data.d.heartbeat_interval;
+                        heartbeatInterval = setInterval(() => {
+                            ws.send(JSON.stringify({ op: 1, d: null }));
+                        }, interval);
+
+                        // Gửi gói tin Đăng nhập tài khoản
+                        ws.send(JSON.stringify({
+                            op: 2,
+                            d: {
+                                token: token,
+                                capabilities: 16381,
+                                properties: { os: "Windows", browser: "Chrome", device: "" },
+                                presence: { status: "online", afk: false },
+                                compress: false,
+                                client_state: { guild_versions: {}, highest_last_message_id: "0", read_state_version: 0, user_guild_settings_version: -1, user_settings_version: -1, private_channels_version: "0", api_code_version: 0 }
+                            }
+                        }));
+                    }
+
+                    // Sự kiện READY: Đăng nhập thành công -> Ra lệnh nhảy vào kênh thoại
+                    if (data.t === "READY") {
+                        ws.send(JSON.stringify({
+                            op: 4, // Opcode 4: Voice State Update
+                            d: {
+                                guild_id: guildId,
+                                channel_id: channelId,
+                                self_mute: true,  // Tắt mic
+                                self_deaf: false  // Bật tai nghe
+                            }
+                        }));
+                        statusDiv.innerText = `Trạng thái: Đã vào kênh [${channelData.name || channelId}] thành công!`;
+                    }
+                };
+
+                ws.onerror = () => {
+                    statusDiv.innerText = "Trạng thái: Lỗi kết nối WebSocket!";
+                    stopBot();
+                };
+
+                ws.onclose = () => {
+                    statusDiv.innerText = "Trạng thái: Đã ngắt kết nối.";
+                    ws = null;
+                };
+
+            } catch (err) {
+                statusDiv.innerText = "Lỗi: " + err.message;
+                ws = null;
+            }
+        }
+
+        function stopBot() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerText = "Trạng thái: Đang tắt...";
+
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = null;
+            }
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                // Gửi lệnh rời kênh thoại trước khi đóng cổng kết nối
+                ws.send(JSON.stringify({
+                    op: 4,
+                    d: { guild_id: null, channel_id: null, self_mute: true, self_deaf: false }
+                }));
+                setTimeout(() => {
+                    ws.close();
+                    ws = null;
+                }, 500);
+            } else {
+                ws = null;
+                statusDiv.innerText = "Trạng thái: Bot chưa được bật!";
+            }
+        }
+    </script>
+</body>
+</html>
