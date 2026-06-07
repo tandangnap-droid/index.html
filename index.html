@@ -19,7 +19,7 @@
 <body>
     <div class="container">
         <h1>Quản lý Self-Bot Web</h1>
-        <p style="color: #b9bbbe; font-size: 14px;">Chạy trực tiếp trên trình duyệt - Không cần Server</p>
+        <p style="color: #b9bbbe; font-size: 14px;">Chạy trực tiếp trên trình duyệt - Tự động lưu Token</p>
         
         <input type="password" id="token" placeholder="Nhập Token Discord" />
         <input type="text" id="channelId" placeholder="Nhập ID Kênh Thoại" />
@@ -36,6 +36,19 @@
         let heartbeatInterval = null;
         const CORS_PROXY = "https://corsproxy.io/?"; // Vượt lỗi CORS của trình duyệt
 
+        // TỰ ĐỘNG LẤY TOKEN VÀ ID KÊNH ĐÃ LƯU KHI VÀO LẠI WEB
+        window.onload = function() {
+            const savedToken = localStorage.getItem('dc_token');
+            const savedChannelId = localStorage.getItem('dc_channelId');
+            
+            if (savedToken) {
+                document.getElementById('token').value = savedToken;
+            }
+            if (savedChannelId) {
+                document.getElementById('channelId').value = savedChannelId;
+            }
+        };
+
         async function startBot() {
             const token = document.getElementById('token').value.trim();
             const channelId = document.getElementById('channelId').value.trim();
@@ -50,6 +63,10 @@
                 statusDiv.innerText = "Trạng thái: Bot đang chạy rồi!";
                 return;
             }
+
+            // LƯU TOKEN VÀ ID KÊNH VÀO TRÌNH DUYỆT NGAY KHI BẤM BẬT BOT
+            localStorage.setItem('dc_token', token);
+            localStorage.setItem('dc_channelId', channelId);
 
             statusDiv.innerText = "Trạng thái: Đang lấy thông tin phòng...";
 
