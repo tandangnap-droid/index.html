@@ -1,102 +1,170 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Voice Self-Bot (Pure Client)</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Discord Voice Bot - Giao diện tự động lưu Token</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #2c2f33; color: white; text-align: center; padding-top: 50px; }
-        .container { background-color: #23272a; padding: 40px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.5); max-width: 400px; width: 100%; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; font-size: 16px; background-color: #40444b; color: white; outline: none; }
-        input:focus { outline: 2px solid #7289da; }
-        button { padding: 12px 20px; font-size: 16px; margin: 10px 5px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; transition: 0.3s; width: 45%; }
-        button:hover { opacity: 0.8; }
-        .start { background-color: #43b581; color: white; }
-        .stop { background-color: #f04747; color: white; }
-        #status { margin-top: 20px; font-size: 18px; color: #faa61a; font-weight: bold; }
+        /* Các hiệu ứng chuyển động (Animation) lấy từ trang gốc */
+        @keyframes splash-orbit {
+            0% { transform: rotate(0deg) translateX(60px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+        }
+        @keyframes splash-badge-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes splash-dot-pulse {
+            0%, 100% { opacity: 0.4; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        .animate-orbit { animation: splash-orbit 5s linear infinite; }
+        .animate-float { animation: splash-badge-float 3s ease-in-out infinite; }
+        .animate-dot { animation: splash-dot-pulse 1.6s ease-in-out infinite; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Quản lý Self-Bot Web</h1>
-        <p style="color: #b9bbbe; font-size: 14px;">Chạy trực tiếp trên trình duyệt - Tự động lưu Token</p>
+<body class="antialiased bg-[#0b0d10] text-white font-sans">
+
+    <div class="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden p-4">
         
-        <input type="password" id="token" placeholder="Nhập Token Discord" />
-        <input type="text" id="channelId" placeholder="Nhập ID Kênh Thoại" />
-        
-        <br>
-        <button class="start" onclick="startBot()">▶ Bật Bot</button>
-        <button class="stop" onclick="stopBot()">⏹ Tắt Bot</button>
-        
-        <div id="status">Trạng thái: Đang chờ lệnh...</div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-[#5865F2]/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute top-1/3 left-1/3 w-[200px] h-[200px] bg-[#EB459E]/6 rounded-full blur-[80px] pointer-events-none"></div>
+
+        <div class="relative z-10 w-full max-w-md bg-[#15191e]/80 backdrop-blur-md border border-zinc-800/60 rounded-2xl p-8 shadow-2xl">
+            
+            <div class="flex flex-col items-center mb-6">
+                <div class="w-24 h-24 relative flex items-center justify-center mb-2">
+                    <div class="absolute w-2 h-2 rounded-full bg-[#5865F2] animate-orbit" style="animation-delay: 0s;"></div>
+                    <div class="absolute w-2 h-2 rounded-full bg-[#EB459E] animate-orbit" style="animation-delay: 0.8s;"></div>
+                    <div class="absolute w-2 h-2 rounded-full bg-[#57F287] animate-orbit" style="animation-delay: 1.6s;"></div>
+                    
+                    <div class="animate-float">
+                        <svg class="w-12 h-12 text-[#5865F2] drop-shadow-[0_0_10px_rgba(88,101,242,0.5)]" viewBox="0 0 127.14 96.36" fill="currentColor">
+                            <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a74.37,74.37,0,0,0,6.66-10.85,68.43,68.43,0,0,1-10.5-5c.88-.65,1.72-1.33,2.53-2a75.71,75.71,0,0,0,72.9,0c.81.7,1.65,1.38,2.53,2a68.4,68.4,0,0,1-10.5,5,74.65,74.65,0,0,0,6.66,10.85,105.73,105.73,0,0,0,31.06-18.83C129.9,50.22,123.81,27.46,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <h1 class="text-2xl font-bold tracking-tight text-white">Discord Voice Center</h1>
+                <p class="text-sm text-zinc-400 mt-1">Chạy trực tiếp trên trình duyệt & Tự lưu thông tin</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Token Tài Khoản</label>
+                    <input type="password" id="token" placeholder="Nhập Token Discord cá nhân..." 
+                           class="w-full px-4 py-3 bg-[#0b0d10] border border-zinc-800 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2] focus:ring-1 focus:ring-[#5865F2] transition-all" />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">ID Kênh Thoại (Voice Channel)</label>
+                    <input type="text" id="channelId" placeholder="Nhập ID kênh thoại cần treo..." 
+                           class="w-full px-4 py-3 bg-[#0b0d10] border border-zinc-800 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2] focus:ring-1 focus:ring-[#5865F2] transition-all" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button onclick="startBot()" class="w-full py-3 bg-[#5865F2] hover:bg-[#4752c4] text-white font-medium rounded-xl transition-all shadow-lg shadow-[#5865F2]/20 active:scale-[0.98] cursor-pointer">
+                        ▶ Bật Bot
+                    </button>
+                    <button onclick="stopBot()" class="w-full py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium rounded-xl transition-all active:scale-[0.98] cursor-pointer">
+                        ⏹ Tắt Bot
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-zinc-800/60 flex items-center justify-center gap-2 text-sm text-amber-400 font-medium" id="status-container">
+                <div class="w-2 h-2 rounded-full bg-amber-400 animate-pulse" id="status-dot"></div>
+                <span id="status">Trạng thái: Đang chờ lệnh...</span>
+            </div>
+
+        </div>
+
+        <div class="flex items-center gap-1.5 mt-8 pointer-events-none">
+            <div class="w-1 h-1 rounded-full bg-[#5865F2] animate-dot" style="animation-delay: 0s;"></div>
+            <div class="w-1 h-1 rounded-full bg-[#5865F2] animate-dot" style="animation-delay: 0.15s;"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-[#FEE75C] animate-dot" style="animation-delay: 0.3s;"></div>
+            <div class="w-1 h-1 rounded-full bg-[#57F287] animate-dot" style="animation-delay: 0.45s;"></div>
+            <div class="w-1 h-1 rounded-full bg-[#57F287] animate-dot" style="animation-delay: 0.6s;"></div>
+        </div>
     </div>
 
     <script>
         let ws = null;
         let heartbeatInterval = null;
-        const CORS_PROXY = "https://corsproxy.io/?"; // Vượt lỗi CORS của trình duyệt
+        const CORS_PROXY = "https://corsproxy.io/?";
 
-        // TỰ ĐỘNG LẤY TOKEN VÀ ID KÊNH ĐÃ LƯU KHI VÀO LẠI WEB
+        // [TÍNH NĂNG MỚI]: Tự động gọi lại Token và ID phòng cũ khi vừa mở Web
         window.onload = function() {
             const savedToken = localStorage.getItem('dc_token');
             const savedChannelId = localStorage.getItem('dc_channelId');
-            
-            if (savedToken) {
-                document.getElementById('token').value = savedToken;
-            }
-            if (savedChannelId) {
-                document.getElementById('channelId').value = savedChannelId;
-            }
+            if (savedToken) document.getElementById('token').value = savedToken;
+            if (savedChannelId) document.getElementById('channelId').value = savedChannelId;
         };
+
+        function updateStatus(text, type = "warning") {
+            const statusText = document.getElementById('status');
+            const statusDot = document.getElementById('status-dot');
+            const container = document.getElementById('status-container');
+            
+            statusText.innerText = "Trạng thái: " + text;
+            
+            // Đổi màu sắc hiển thị dựa trên trạng thái thực tế
+            if (type === "success") {
+                container.className = "mt-6 pt-4 border-t border-zinc-800/60 flex items-center justify-center gap-2 text-sm text-emerald-400 font-medium";
+                statusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+            } else if (type === "error") {
+                container.className = "mt-6 pt-4 border-t border-zinc-800/60 flex items-center justify-center gap-2 text-sm text-rose-400 font-medium";
+                statusDot.className = "w-2 h-2 rounded-full bg-rose-400";
+            } else {
+                container.className = "mt-6 pt-4 border-t border-zinc-800/60 flex items-center justify-center gap-2 text-sm text-amber-400 font-medium";
+                statusDot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+            }
+        }
 
         async function startBot() {
             const token = document.getElementById('token').value.trim();
             const channelId = document.getElementById('channelId').value.trim();
-            const statusDiv = document.getElementById('status');
 
             if (!token || !channelId) {
-                alert("Vui lòng nhập đầy đủ Token và ID Kênh!");
+                alert("Vui lòng nhập đầy đủ cả Token và ID Kênh!");
                 return;
             }
 
             if (ws) {
-                statusDiv.innerText = "Trạng thái: Bot đang chạy rồi!";
+                updateStatus("Bot đang hoạt động rồi!", "warning");
                 return;
             }
 
-            // LƯU TOKEN VÀ ID KÊNH VÀO TRÌNH DUYỆT NGAY KHI BẤM BẬT BOT
+            // Ghi nhớ thông tin vào máy để lần sau không cần nhập lại
             localStorage.setItem('dc_token', token);
             localStorage.setItem('dc_channelId', channelId);
 
-            statusDiv.innerText = "Trạng thái: Đang lấy thông tin phòng...";
+            updateStatus("Đang quét thông tin phòng thoại...", "warning");
 
             try {
-                // 1. Gửi request qua Proxy để lấy Guild ID từ Channel ID
                 const targetUrl = `https://discord.com/api/v9/channels/${channelId}`;
                 const response = await fetch(CORS_PROXY + encodeURIComponent(targetUrl), {
                     headers: { "Authorization": token }
                 });
 
-                if (!response.ok) throw new Error("Token hoặc ID kênh không hợp lệ");
+                if (!response.ok) throw new Error("Token sai hoặc kênh không tồn tại");
                 const channelData = await response.json();
                 const guildId = channelData.guild_id;
 
-                statusDiv.innerText = "Trạng thái: Đang kết nối Gateway...";
+                updateStatus("Kết nối Discord Gateway...", "warning");
 
-                // 2. Khởi tạo mạng WebSocket kết nối thẳng tới cổng Discord
                 ws = new WebSocket("wss://gateway.discord.gg/?v=9&encoding=json");
 
                 ws.onmessage = (event) => {
                     const data = JSON.parse(event.data);
 
-                    // Opcode 10: Hello -> Bắt đầu duy trì mạng (Heartbeat) và Đăng nhập (Identify)
                     if (data.op === 10) {
                         const interval = data.d.heartbeat_interval;
                         heartbeatInterval = setInterval(() => {
                             ws.send(JSON.stringify({ op: 1, d: null }));
                         }, interval);
 
-                        // Gửi gói tin Đăng nhập tài khoản
                         ws.send(JSON.stringify({
                             op: 2,
                             d: {
@@ -110,40 +178,38 @@
                         }));
                     }
 
-                    // Sự kiện READY: Đăng nhập thành công -> Ra lệnh nhảy vào kênh thoại
                     if (data.t === "READY") {
                         ws.send(JSON.stringify({
-                            op: 4, // Opcode 4: Voice State Update
+                            op: 4,
                             d: {
                                 guild_id: guildId,
                                 channel_id: channelId,
-                                self_mute: true,  // Tắt mic
-                                self_deaf: false  // Bật tai nghe
+                                self_mute: true,
+                                self_deaf: false
                             }
                         }));
-                        statusDiv.innerText = `Trạng thái: Đã vào kênh [${channelData.name || channelId}] thành công!`;
+                        updateStatus(`Đã treo trong kênh [${channelData.name || channelId}]`, "success");
                     }
                 };
 
                 ws.onerror = () => {
-                    statusDiv.innerText = "Trạng thái: Lỗi kết nối WebSocket!";
+                    updateStatus("Lỗi đường truyền mạng WebSocket!", "error");
                     stopBot();
                 };
 
                 ws.onclose = () => {
-                    statusDiv.innerText = "Trạng thái: Đã ngắt kết nối.";
+                    updateStatus("Đã ngắt kết nối.", "error");
                     ws = null;
                 };
 
             } catch (err) {
-                statusDiv.innerText = "Lỗi: " + err.message;
+                updateStatus(err.message, "error");
                 ws = null;
             }
         }
 
         function stopBot() {
-            const statusDiv = document.getElementById('status');
-            statusDiv.innerText = "Trạng thái: Đang tắt...";
+            updateStatus("Đang tiến hành tắt bot...", "warning");
 
             if (heartbeatInterval) {
                 clearInterval(heartbeatInterval);
@@ -151,7 +217,6 @@
             }
 
             if (ws && ws.readyState === WebSocket.OPEN) {
-                // Gửi lệnh rời kênh thoại trước khi đóng cổng kết nối
                 ws.send(JSON.stringify({
                     op: 4,
                     d: { guild_id: null, channel_id: null, self_mute: true, self_deaf: false }
@@ -159,10 +224,10 @@
                 setTimeout(() => {
                     ws.close();
                     ws = null;
-                }, 500);
+                }, 400);
             } else {
                 ws = null;
-                statusDiv.innerText = "Trạng thái: Bot chưa được bật!";
+                updateStatus("Bot chưa được kích hoạt từ trước!", "error");
             }
         }
     </script>
