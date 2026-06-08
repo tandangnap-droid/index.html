@@ -1,335 +1,733 @@
 <!DOCTYPE html>
 <html lang="vi" class="dark">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Discord Voice Bot - Hệ thống Đăng nhập</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phantom Discord Voice</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        cyber: {
+                            bg: '#050508',
+                            card: '#0c0c14',
+                            border: '#1b1b2f',
+                            primary: '#06b6d4', /* Cyan */
+                            accent: '#a855f7',  /* Purple */
+                            success: '#10b981', /* Green */
+                            danger: '#ef4444',  /* Red */
+                            warn: '#f59e0b'     /* Yellow */
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        @keyframes splash-orbit {
-            0% { transform: rotate(0deg) translateX(60px) rotate(0deg); }
-            100% { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+        body {
+            background-color: #050508;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        @keyframes splash-badge-float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        /* Custom scrollbar for console & lists */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
-        @keyframes splash-dot-pulse {
-            0%, 100% { opacity: 0.4; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.2); }
+        ::-webkit-scrollbar-track {
+            background: #0c0c14;
         }
-        .animate-orbit { animation: splash-orbit 5s linear infinite; }
-        .animate-float { animation: splash-badge-float 3s ease-in-out infinite; }
-        .animate-dot { animation: splash-dot-pulse 1.6s ease-in-out infinite; }
+        ::-webkit-scrollbar-thumb {
+            background: #1f1f35;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4;
+        }
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
+        }
+        .glow-red {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+        .text-glow {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
     </style>
 </head>
-<body class="antialiased bg-[#0b0d10] text-white font-sans">
+<body class="text-gray-300 min-h-screen selection:bg-cyan-500 selection:text-black">
 
-    <div class="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden p-4">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
         
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-[#5865F2]/10 rounded-full blur-[120px] pointer-events-none"></div>
-        <div class="absolute top-1/3 left-1/3 w-[200px] h-[200px] bg-[#EB459E]/6 rounded-full blur-[80px] pointer-events-none"></div>
-
-        <div id="login-card" class="relative z-10 w-full max-w-md bg-[#15191e]/80 backdrop-blur-md border border-zinc-800/60 rounded-2xl p-8 shadow-2xl flex flex-col items-center">
-            <div class="w-24 h-24 relative flex items-center justify-center mb-4">
-                <div class="absolute w-2 h-2 rounded-full bg-[#EB459E] animate-orbit"></div>
-                <div class="animate-float">
-                    <svg class="w-12 h-12 text-zinc-500" viewBox="0 0 127.14 96.36" fill="currentColor"><path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a74.37,74.37,0,0,0,6.66-10.85,68.43,68.43,0,0,1-10.5-5c.88-.65,1.72-1.33,2.53-2a75.71,75.71,0,0,0,72.9,0c.81.7,1.65,1.38,2.53,2a68.4,68.4,0,0,1-10.5,5,74.65,74.65,0,0,0,6.66,10.85,105.73,105.73,0,0,0,31.06-18.83C129.9,50.22,123.81,27.46,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/></svg>
+        <!-- ================= HEADER BANNER ================= -->
+        <header class="relative overflow-hidden rounded-2xl border border-cyber-border bg-cyber-card p-6 mb-6 glow-cyan">
+            <div class="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl -z-10"></div>
+            <div class="absolute bottom-0 left-0 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl -z-10"></div>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-center md:text-left">
+                    <div class="flex items-center justify-center md:justify-start gap-3 mb-2">
+                        <span class="px-3 py-1 text-xs font-bold bg-cyan-500/10 text-cyber-primary rounded-full border border-cyan-500/20 uppercase tracking-widest animate-pulse">
+                            V2.1 Secure Session
+                        </span>
+                        <span class="text-xs text-red-500 font-bold"><i class="fa-solid fa-ban mr-1"></i> NO SELL ALLOWED</span>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-200 to-purple-500 tracking-tight text-glow">
+                        Phantom VOICE BOT
+                    </h1>
+                    <p class="text-sm text-gray-400 mt-1 font-mono">
+                        Hỗ trợ kỹ thuật tại: <a href="https://discord.gg/hj57h3hnvs" target="_blank" class="text-cyan-400 hover:underline">discord.gg/hj57h3hnvs</a>
+                    </p>
+                </div>
+                
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <button onclick="openAddTokenModal()" class="px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-black font-semibold rounded-xl transition duration-200 flex items-center gap-2 text-sm shadow-lg shadow-cyan-500/20">
+                        <i class="fa-solid fa-plus-circle"></i> Nhập Token
+                    </button>
+                    <button onclick="clearDeadTokens()" class="px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 border border-cyber-border text-red-400 hover:text-red-300 font-medium rounded-xl transition duration-200 flex items-center gap-2 text-sm">
+                        <i class="fa-solid fa-trash-can"></i> Lọc Token Dead
+                    </button>
                 </div>
             </div>
-            <h1 class="text-xl font-bold text-white mb-1">Đăng nhập Hệ thống</h1>
-            <p class="text-xs text-zinc-400 mb-6 text-center">Bạn cần xác thực Token cá nhân để truy cập Dashboard</p>
-            
-            <div class="w-full space-y-4">
+        </header>
+
+        <!-- ================= STATS CARDS ================= -->
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-cyber-card border border-cyber-border rounded-xl p-4 flex items-center gap-4">
+                <div class="p-3 bg-blue-500/10 text-blue-400 rounded-lg text-xl"><i class="fa-solid fa-key"></i></div>
                 <div>
-                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Nhập Token Discord</label>
-                    <input type="password" id="login-token" placeholder="Mfa.v2.xxxx..." 
-                           class="w-full px-4 py-3 bg-[#0b0d10] border border-zinc-800 rounded-xl text-white placeholder-zinc-700 focus:outline-none focus:border-[#5865F2] focus:ring-1 focus:ring-[#5865F2] transition-all text-sm"/>
+                    <p class="text-xs text-gray-400 font-medium">Tổng số Token</p>
+                    <h3 id="stat-total" class="text-2xl font-bold font-mono text-white">0</h3>
                 </div>
-                <button onclick="handleLogin()" id="login-btn" class="w-full py-3 bg-[#5865F2] hover:bg-[#4752c4] text-white font-medium rounded-xl transition-all shadow-lg shadow-[#5865F2]/20 active:scale-[0.98] cursor-pointer text-sm">
-                    Đăng Nhập
-                </button>
-                <p id="login-error" class="text-xs text-rose-400 text-center font-medium min-h-[16px]"></p>
             </div>
-        </div>
+            <div class="bg-cyber-card border border-cyber-border rounded-xl p-4 flex items-center gap-4">
+                <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-lg text-xl"><i class="fa-solid fa-circle-check"></i></div>
+                <div>
+                    <p class="text-xs text-gray-400 font-medium">Token Trực Tuyến</p>
+                    <h3 id="stat-online" class="text-2xl font-bold font-mono text-cyber-success">0</h3>
+                </div>
+            </div>
+            <div class="bg-cyber-card border border-cyber-border rounded-xl p-4 flex items-center gap-4">
+                <div class="p-3 bg-purple-500/10 text-purple-400 rounded-lg text-xl"><i class="fa-solid fa-volume-high"></i></div>
+                <div>
+                    <p class="text-xs text-gray-400 font-medium">Đang Treo Voice</p>
+                    <h3 id="stat-hanging" class="text-2xl font-bold font-mono text-purple-400">0</h3>
+                </div>
+            </div>
+            <div class="bg-cyber-card border border-cyber-border rounded-xl p-4 flex items-center gap-4">
+                <div class="p-3 bg-red-500/10 text-red-400 rounded-lg text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div>
+                    <p class="text-xs text-gray-400 font-medium">Token Bị Lỗi/Dead</p>
+                    <h3 id="stat-dead" class="text-2xl font-bold font-mono text-cyber-danger">0</h3>
+                </div>
+            </div>
+        </section>
 
-        <div id="dashboard-card" class="hidden relative z-10 w-full max-w-md bg-[#15191e]/80 backdrop-blur-md border border-zinc-800/60 rounded-2xl p-8 shadow-2xl flex flex-col">
+        <!-- ================= MAIN CORE LAYOUT ================= -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-zinc-800/60">
-                <div class="flex items-center gap-3">
-                    <img id="user-avatar" src="https://discord.com/favicon.ico" class="w-10 h-10 rounded-full border border-zinc-700 object-cover bg-zinc-800" alt="Avatar"/>
-                    <div>
-                        <div id="user-name" class="font-bold text-white text-sm">Discord User</div>
-                        <div class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-medium inline-block mt-0.5">Đã xác thực</div>
+            <!-- Left Panel: Thiết lập treo Voice (5 cột) -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- Bảng thiết lập thông số phòng -->
+                <div class="bg-cyber-card border border-cyber-border rounded-xl p-5">
+                    <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2 border-b border-cyber-border pb-3">
+                        <i class="fa-solid fa-sliders text-cyber-primary"></i> Thiết Lập Treo Voice
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-400 mb-1.5 tracking-wider">ID Server (Guild ID)</label>
+                            <input type="text" id="guild-id" placeholder="Nhập ID Server Discord..." class="w-full bg-cyber-bg border border-cyber-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500 font-mono text-white transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-400 mb-1.5 tracking-wider">ID Kênh Voice (Channel ID)</label>
+                            <input type="text" id="channel-id" placeholder="Nhập ID phòng Voice..." class="w-full bg-cyber-bg border border-cyber-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500 font-mono text-white transition">
+                        </div>
+                        
+                        <!-- Toggle Trạng thái âm thanh / luồng -->
+                        <div class="grid grid-cols-3 gap-3 pt-2">
+                            <div class="flex flex-col items-center justify-center p-3 bg-cyber-bg rounded-xl border border-cyber-border cursor-pointer select-none" onclick="toggleOption('mic')">
+                                <span id="btn-mic-icon" class="text-lg text-red-400"><i class="fa-solid fa-microphone-slash"></i></span>
+                                <span class="text-xs font-semibold mt-1">Mở Mic</span>
+                                <input type="checkbox" id="opt-mic" class="hidden">
+                            </div>
+                            <div class="flex flex-col items-center justify-center p-3 bg-cyber-bg rounded-xl border border-cyber-border cursor-pointer select-none" onclick="toggleOption('loa')">
+                                <span id="btn-loa-icon" class="text-lg text-red-400"><i class="fa-solid fa-volume-xmark"></i></span>
+                                <span class="text-xs font-semibold mt-1">Nghe Loa</span>
+                                <input type="checkbox" id="opt-loa" class="hidden">
+                            </div>
+                            <div class="flex flex-col items-center justify-center p-3 bg-cyber-bg rounded-xl border border-cyber-border cursor-pointer select-none" onclick="toggleOption('stream')">
+                                <span id="btn-stream-icon" class="text-lg text-gray-500"><i class="fa-solid fa-video-slash"></i></span>
+                                <span class="text-xs font-semibold mt-1">Cam/Stream</span>
+                                <input type="checkbox" id="opt-stream" class="hidden">
+                            </div>
+                        </div>
+
+                        <!-- Các phím chạy chính -->
+                        <div class="grid grid-cols-2 gap-3 pt-3">
+                            <button id="btn-start" onclick="startHanging()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-black font-bold rounded-xl transition duration-200 shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-play"></i> BẮT ĐẦU TREO
+                            </button>
+                            <button id="btn-stop" onclick="stopHanging()" disabled class="w-full py-3 bg-neutral-900 border border-cyber-border text-gray-500 font-bold rounded-xl transition duration-200 flex items-center justify-center gap-2 cursor-not-allowed">
+                                <i class="fa-solid fa-stop"></i> DỪNG LẠI
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <button onclick="handleLogout()" class="text-xs text-zinc-500 hover:text-rose-400 font-medium transition-colors cursor-pointer">
-                    Đăng xuất
-                </button>
-            </div>
 
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">ID Kênh Thoại (Voice Channel ID)</label>
-                    <input type="text" id="channelId" placeholder="Nhập ID kênh thoại cần treo..." 
-                           class="w-full px-4 py-3 bg-[#0b0d10] border border-zinc-800 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-[#5865F2] focus:ring-1 focus:ring-[#5865F2] transition-all text-sm"/>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                    <button onclick="startBot()" class="w-full py-3 bg-[#5865F2] hover:bg-[#4752c4] text-white font-medium rounded-xl transition-all shadow-lg shadow-[#5865F2]/20 active:scale-[0.98] cursor-pointer text-sm">
-                        ▶ Bật Bot
-                    </button>
-                    <button onclick="stopBot()" class="w-full py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium rounded-xl transition-all active:scale-[0.98] cursor-pointer text-sm">
-                        ⏹ Tắt Bot
-                    </button>
+                <!-- Bảng Cảnh báo / Cam kết -->
+                <div class="bg-cyan-500/5 border border-cyan-500/15 rounded-xl p-4 glow-cyan">
+                    <p class="text-xs font-bold text-cyan-400 flex items-center gap-2 mb-1.5">
+                        <i class="fa-solid fa-shield-halved"></i> CHẾ ĐỘ BẢO MẬT TUYỆT ĐỐI (RAM-ONLY)
+                    </p>
+                    <ul class="text-[11px] text-gray-400 list-disc pl-4 space-y-1">
+                        <li class="text-cyan-300 font-medium">Toàn bộ Token sẽ KHÔNG lưu vào thiết bị/trình duyệt của bạn.</li>
+                        <li>Token chỉ hoạt động trong tab hiện tại. Tải lại trang (F5) hoặc đóng tab sẽ tự động xóa sạch dữ liệu.</li>
+                        <li>Hãy sao lưu kỹ danh sách Token của bạn ở một tệp tin ngoài để nạp lại khi cần thiết.</li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="mt-6 pt-4 border-t border-zinc-800/60 flex items-center justify-center gap-2 text-sm text-amber-400 font-medium" id="status-container">
-                <div class="w-2 h-2 rounded-full bg-amber-400 animate-pulse" id="status-dot"></div>
-                <span id="status">Trạng thái: Đang chờ lệnh...</span>
+            <!-- Right Panel: Danh sách Token & Monitor (7 cột) -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Khu quản lý Token -->
+                <div class="bg-cyber-card border border-cyber-border rounded-xl p-5">
+                    <div class="flex justify-between items-center mb-4 border-b border-cyber-border pb-3">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-users text-cyan-400"></i> Danh Sách Token Quét
+                        </h2>
+                        <span id="badge-token-count" class="px-2 py-0.5 text-xs font-semibold bg-cyber-border rounded-full font-mono">0 Token</span>
+                    </div>
+
+                    <div id="token-list" class="max-h-[350px] overflow-y-auto space-y-2 pr-1">
+                        <!-- Trạng thái trống -->
+                        <div id="empty-state" class="py-12 text-center">
+                            <i class="fa-solid fa-shield text-gray-600 text-4xl mb-3"></i>
+                            <p class="text-sm text-gray-500">Chưa có Token nào trong phiên làm việc hiện tại.</p>
+                            <button onclick="openAddTokenModal()" class="text-xs text-cyan-400 hover:underline mt-1 font-semibold">Bấm vào đây để nhập</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terminal Console Log -->
+                <div class="bg-black border border-cyber-border rounded-xl p-4 font-mono text-xs">
+                    <div class="flex justify-between items-center mb-3 border-b border-cyber-border pb-2 text-gray-500">
+                        <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span> TERMINAL CONSOLE LOG</span>
+                        <button onclick="clearLogs()" class="hover:text-white transition"><i class="fa-solid fa-eraser"></i> Clear</button>
+                    </div>
+                    <div id="terminal-logs" class="h-40 overflow-y-auto space-y-1.5 text-cyan-400 pr-1">
+                        <div>[SYSTEM] <span class="text-cyan-400/70">Hệ thống an toàn khởi động thành công. Toàn bộ thông tin Token được đặt ở chế độ bảo vệ RAM-only.</span></div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <div class="flex items-center gap-1.5 mt-8 pointer-events-none">
-            <div class="w-1 h-1 rounded-full bg-[#5865F2] animate-dot" style="animation-delay: 0s;"></div>
-            <div class="w-1 h-1 rounded-full bg-[#5865F2] animate-dot" style="animation-delay: 0.15s;"></div>
-            <div class="w-1.5 h-1.5 rounded-full bg-[#FEE75C] animate-dot" style="animation-delay: 0.3s;"></div>
-            <div class="w-1 h-1 rounded-full bg-[#57F287] animate-dot" style="animation-delay: 0.45s;"></div>
-            <div class="w-1 h-1 rounded-full bg-[#57F287] animate-dot" style="animation-delay: 0.6s;"></div>
+    </div>
+
+    <!-- ================= ADD TOKEN MODAL ================= -->
+    <div id="add-token-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-cyber-card border border-cyber-border rounded-2xl p-6 w-full max-w-xl shadow-2xl relative">
+            <button onclick="closeAddTokenModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle text-cyan-400"></i> Nhập Danh Sách Token Mới
+            </h3>
+            <p class="text-xs text-gray-400 mb-4">Mỗi dòng tương ứng với 1 token Discord của người dùng. Hệ thống sẽ tự động lọc bỏ các token trùng lặp.</p>
+            
+            <textarea id="bulk-tokens" rows="8" placeholder="Dán danh sách token vào đây...&#10;Token_1&#10;Token_2" class="w-full bg-cyber-bg border border-cyber-border rounded-xl p-4 text-xs font-mono focus:outline-none focus:border-cyan-500 text-white mb-4"></textarea>
+            
+            <div class="flex justify-end gap-3">
+                <button onclick="closeAddTokenModal()" class="px-4 py-2 bg-neutral-900 border border-cyber-border hover:bg-neutral-800 text-sm font-medium rounded-xl transition">
+                    Hủy Bỏ
+                </button>
+                <button onclick="saveBulkTokens()" class="px-5 py-2 bg-cyan-500 hover:bg-cyan-600 text-black font-semibold text-sm rounded-xl transition">
+                    Xác Nhận Lưu
+                </button>
+            </div>
         </div>
     </div>
 
+    <!-- Web-Based Discord Client Management Core -->
     <script>
-        let globalToken = null;
-        let ws = null;
-        let heartbeatInterval = null;
-        const CORS_PROXY = "https://corsproxy.io/?";
+        let tokens = [];
+        let botInstances = [];
+        let isRunning = false;
 
-        // 1. KHI VỪA VÀO WEB: Kiểm tra phiên đăng nhập cũ
-        window.onload = async function() {
-            const savedToken = localStorage.getItem('dc_logged_token');
-            const savedChannelId = localStorage.getItem('dc_channelId');
-            
-            if (savedChannelId) {
-                document.getElementById('channelId').value = savedChannelId;
-            }
-
-            if (savedToken) {
-                // Hiển thị trạng thái đang kiểm tra tự động
-                document.getElementById('login-btn').innerText = "Đang kiểm tra...";
-                document.getElementById('login-btn').disabled = true;
-                
-                const loginSuccess = await checkAndLogin(savedToken);
-                if (!loginSuccess) {
-                    // Nếu token cũ hỏng, xóa đi bắt đăng nhập lại
-                    localStorage.removeItem('dc_logged_token');
-                    document.getElementById('login-btn').innerText = "Đăng Nhập";
-                    document.getElementById('login-btn').disabled = false;
-                }
-            }
+        // Trạng thái thiết lập
+        let configOptions = {
+            mic: false,
+            loa: false,
+            stream: false
         };
 
-        // 2. HÀM CHECK TOKEN QUA DISCORD API VÀ ĐỔI GIAO DIỆN
-        async function checkAndLogin(token) {
-            const errorDiv = document.getElementById('login-error');
-            errorDiv.innerText = "";
+        // KHÔNG còn chức năng load từ localStorage để đảm bảo bảo mật tuyệt đối
+        window.onload = function() {
+            updateTokenUI();
+            addLog("SYSTEM", "Chế độ bảo mật được kích hoạt. Không có dữ liệu Token nào được lưu vết trên thiết bị này.", "gray");
+        };
 
-            try {
-                // Gọi API cá nhân của Discord thông qua Proxy để lấy thông tin Nick
-                const targetUrl = "https://discord.com/api/v9/users/@me";
-                const response = await fetch(CORS_PROXY + encodeURIComponent(targetUrl), {
-                    headers: { "Authorization": token.trim() }
-                });
+        function addLog(source, message, color = "cyan") {
+            const container = document.getElementById('terminal-logs');
+            const timeStr = new Date().toLocaleTimeString();
+            
+            let colorClass = "text-cyan-400";
+            if (color === "red") colorClass = "text-red-500";
+            if (color === "green") colorClass = "text-emerald-400";
+            if (color === "gray") colorClass = "text-gray-500";
+            if (color === "yellow") colorClass = "text-amber-400";
 
-                if (!response.ok) return false;
+            const logElement = document.createElement('div');
+            logElement.className = "leading-relaxed break-all";
+            logElement.innerHTML = `<span class="text-gray-600">[${timeStr}]</span> <span class="font-bold text-purple-400">[${source}]</span> <span class="${colorClass}">${message}</span>`;
+            container.appendChild(logElement);
+            container.scrollTop = container.scrollHeight;
+        }
 
-                const userData = await response.json();
-                globalToken = token.trim();
-                
-                // Lưu Token vào bộ nhớ máy sau khi xác thực thành công
-                localStorage.setItem('dc_logged_token', globalToken);
+        function clearLogs() {
+            document.getElementById('terminal-logs').innerHTML = "";
+            addLog("SYSTEM", "Đã dọn dẹp toàn bộ dữ liệu Console logs.", "gray");
+        }
 
-                // Cập nhật thông tin User lên Dashboard
-                document.getElementById('user-name').innerText = userData.username;
-                if (userData.avatar) {
-                    document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
+        // Toggles mic/loa/camera trên giao diện
+        function toggleOption(type) {
+            if (isRunning) return; // Không cho đổi tùy chọn khi đang chạy
+            
+            configOptions[type] = !configOptions[type];
+            document.getElementById(`opt-${type}`).checked = configOptions[type];
+
+            const btnIcon = document.getElementById(`btn-${type}-icon`);
+            const parentDiv = btnIcon.parentElement;
+
+            if (type === 'mic') {
+                if (configOptions.mic) {
+                    btnIcon.innerHTML = `<i class="fa-solid fa-microphone"></i>`;
+                    btnIcon.className = "text-lg text-emerald-400";
+                    addLog("SETTINGS", "Mic sẽ được bật cho toàn bộ bot.", "green");
                 } else {
-                    document.getElementById('user-avatar').src = `https://cdn.discordapp.com/embed/avatars/${userData.discriminator % 5}.png`;
+                    btnIcon.innerHTML = `<i class="fa-solid fa-microphone-slash"></i>`;
+                    btnIcon.className = "text-lg text-red-400";
+                    addLog("SETTINGS", "Các bot sẽ ở chế độ Mute (Tắt mic).", "yellow");
                 }
-
-                // CHUYỂN GIAO DIỆN: Ẩn Login, Hiện Dashboard
-                document.getElementById('login-card').classList.add('hidden');
-                document.getElementById('dashboard-card').classList.remove('hidden');
-                return true;
-
-            } catch (err) {
-                return false;
+            } else if (type === 'loa') {
+                if (configOptions.loa) {
+                    btnIcon.innerHTML = `<i class="fa-solid fa-volume-high"></i>`;
+                    btnIcon.className = "text-lg text-emerald-400";
+                    addLog("SETTINGS", "Loa sẽ được mở (Nhận âm thanh phòng).", "green");
+                } else {
+                    btnIcon.innerHTML = `<i class="fa-solid fa-volume-xmark"></i>`;
+                    btnIcon.className = "text-lg text-red-400";
+                    addLog("SETTINGS", "Các bot sẽ ở chế độ Deaf (Tắt loa).", "yellow");
+                }
+            } else if (type === 'stream') {
+                if (configOptions.stream) {
+                    btnIcon.innerHTML = `<i class="fa-solid fa-video"></i>`;
+                    btnIcon.className = "text-lg text-cyan-400";
+                    addLog("SETTINGS", "Bot sẽ bật Video Camera/Stream luồng khi kết nối.", "green");
+                } else {
+                    btnIcon.innerHTML = `<i class="fa-solid fa-video-slash"></i>`;
+                    btnIcon.className = "text-lg text-gray-500";
+                    addLog("SETTINGS", "Camera/Stream luồng bị tắt.", "gray");
+                }
             }
         }
 
-        // 3. NÚT BẤM ĐĂNG NHẬP THỦ CÔNG
-        async function handleLogin() {
-            const tokenInput = document.getElementById('login-token').value.trim();
-            const btn = document.getElementById('login-btn');
-            const errorDiv = document.getElementById('login-error');
+        // Modals quản lý token
+        function openAddTokenModal() {
+            document.getElementById('add-token-modal').classList.remove('hidden');
+        }
 
-            if (!tokenInput) {
-                errorDiv.innerText = "Vui lòng nhập Token Discord!";
+        function closeAddTokenModal() {
+            document.getElementById('add-token-modal').classList.add('hidden');
+            document.getElementById('bulk-tokens').value = "";
+        }
+
+        function saveBulkTokens() {
+            const rawText = document.getElementById('bulk-tokens').value;
+            const newTokens = rawText.split('\n')
+                .map(t => t.trim())
+                .filter(t => t.length > 0);
+
+            if (newTokens.length === 0) {
+                closeAddTokenModal();
                 return;
             }
 
-            btn.innerText = "Đang xác thực...";
-            btn.disabled = true;
+            // Gộp và lọc trùng (Lưu trực tiếp vào RAM, không gọi localStorage)
+            const merged = [...tokens, ...newTokens];
+            tokens = [...new Set(merged)];
 
-            const isSuccess = await checkAndLogin(tokenInput);
-
-            if (!isSuccess) {
-                errorDiv.innerText = "Token sai hoặc đã hết hạn!";
-                btn.innerText = "Đăng Nhập";
-                btn.disabled = false;
-            }
+            updateTokenUI();
+            addLog("TOKEN_DB", `Đã nạp tạm thời thêm ${newTokens.length} Token vào RAM!`, "green");
+            closeAddTokenModal();
         }
 
-        // 4. NÚT BẤM ĐĂNG XUẤT
-        function handleLogout() {
-            stopBot(); // Tắt kết nối WebSocket nếu đang chạy
-            localStorage.removeItem('dc_logged_token');
-            globalToken = null;
-            
-            // Trả về giao diện Login ban đầu
-            document.getElementById('login-token').value = "";
-            document.getElementById('login-btn').innerText = "Đăng Nhập";
-            document.getElementById('login-btn').disabled = false;
-            
-            document.getElementById('dashboard-card').classList.add('hidden');
-            document.getElementById('login-card').classList.remove('hidden');
-        }
+        // Cập nhật giao diện quản trị danh sách token
+        function updateTokenUI() {
+            const listContainer = document.getElementById('token-list');
+            const emptyState = document.getElementById('empty-state');
+            document.getElementById('badge-token-count').innerText = `${tokens.length} Token`;
+            document.getElementById('stat-total').innerText = tokens.length;
 
-        // 5. CẬP NHẬT TRẠNG THÁI ĐÈN TÍN HIỆU TRÊN DASHBOARD
-        function updateStatus(text, type = "warning") {
-            const statusText = document.getElementById('status');
-            const statusDot = document.getElementById('status-dot');
-            const container = document.getElementById('status-container');
-            
-            statusText.innerText = "Trạng thái: " + text;
-            
-            if (type === "success") {
-                container.className = "mt-6 pt-4 border-t border-zinc-800/60 flex items-center justify-center gap-2 text-sm text-emerald-400 font-medium";
-                statusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-            } else if (type === "error") {
-                container.className = "mt-6 pt-4 border-t border-zinc-800/60 flex items-center justify-center gap-2 text-sm text-rose-400 font-medium";
-                statusDot.className = "w-2 h-2 rounded-full bg-rose-400";
-            } else {
-                container.className = "mt-6 pt-4 border-t border-zinc-800/60 flex items-center justify-center gap-2 text-sm text-amber-400 font-medium";
-                statusDot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
-            }
-        }
-
-        // 6. CORE LOGIC: BẬT/TẮT BOT QUA WEBSOCKET (Sử dụng Token đã Đăng nhập)
-        async function startBot() {
-            const channelId = document.getElementById('channelId').value.trim();
-
-            if (!channelId) {
-                alert("Vui lòng nhập ID Kênh thoại!");
+            if (tokens.length === 0) {
+                listContainer.innerHTML = "";
+                listContainer.appendChild(emptyState);
+                emptyState.classList.remove('hidden');
                 return;
             }
 
-            if (ws) {
-                updateStatus("Bot đang hoạt động rồi!", "warning");
+            emptyState.classList.add('hidden');
+            listContainer.innerHTML = "";
+
+            tokens.forEach((token, index) => {
+                const shortToken = token.length <= 25 ? token : `${token.slice(0, 12)}...${token.slice(-8)}`;
+                const item = document.createElement('div');
+                item.className = "bg-cyber-bg border border-cyber-border rounded-xl p-3 flex justify-between items-center transition hover:border-gray-700";
+                item.id = `token-row-${index}`;
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div id="avatar-container-${index}" class="relative">
+                            <div id="avatar-dot-${index}" class="w-8 h-8 rounded-full bg-neutral-900 border border-cyber-border flex items-center justify-center font-mono text-xs font-bold text-cyan-400">
+                                ${index + 1}
+                            </div>
+                            <span id="status-indicator-${index}" class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-gray-500 border-2 border-cyber-card"></span>
+                        </div>
+                        <div>
+                            <p id="username-display-${index}" class="text-sm font-semibold text-white tracking-wide">Chờ kích hoạt...</p>
+                            <p class="text-[10px] text-gray-500 font-mono tracking-wider break-all">${shortToken}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="status-badge-${index}" class="text-[10px] font-bold px-2 py-0.5 rounded bg-neutral-800 text-gray-500 tracking-wider">OFFLINE</span>
+                        <button onclick="removeToken(${index})" ${isRunning ? 'disabled' : ''} class="text-gray-500 hover:text-red-400 p-1.5 rounded transition ${isRunning ? 'cursor-not-allowed opacity-40' : ''}">
+                            <i class="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                    </div>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        function removeToken(index) {
+            if (isRunning) return;
+            tokens.splice(index, 1);
+            // KHÔNG lưu lại localStorage
+            updateTokenUI();
+            addLog("TOKEN_DB", `Đã xóa token vị trí [${index + 1}] khỏi bộ nhớ RAM.`, "yellow");
+        }
+
+        // Lọc token hỏng (DEAD)
+        function clearDeadTokens() {
+            if (isRunning) {
+                addLog("SYSTEM", "Không thể dọn dẹp token trong lúc hệ thống đang chạy!", "red");
+                return;
+            }
+            
+            addLog("TOKEN_DB", "Đang phân tích và quét dọn các token lỗi...", "yellow");
+            
+            let deadIndexes = [];
+            const tokenElements = document.querySelectorAll('[id^="status-badge-"]');
+            tokenElements.forEach(el => {
+                const idx = parseInt(el.id.replace('status-badge-', ''));
+                if (el.innerText === "DEAD/ERROR" || el.innerText === "DEAD") {
+                    deadIndexes.push(idx);
+                }
+            });
+
+            if (deadIndexes.length === 0) {
+                addLog("TOKEN_DB", "Không phát hiện token lỗi nào trong phiên này.", "gray");
                 return;
             }
 
-            localStorage.setItem('dc_channelId', channelId);
-            updateStatus("Đang kiểm tra phòng thoại...", "warning");
+            // Loại bỏ trực tiếp khỏi RAM
+            tokens = tokens.filter((_, idx) => !deadIndexes.includes(idx));
+            updateTokenUI();
+            addLog("TOKEN_DB", `Đã loại bỏ sạch hoàn toàn ${deadIndexes.length} token bị lỗi khỏi bộ nhớ RAM hiện hành!`, "green");
+        }
 
-            try {
-                const targetUrl = `https://discord.com/api/v9/channels/${channelId}`;
-                const response = await fetch(CORS_PROXY + encodeURIComponent(targetUrl), {
-                    headers: { "Authorization": globalToken }
-                });
+        // ================= CLIENT VOICE WEBSOCKET CLASS =================
+        class DiscordVoiceWebsocket {
+            constructor(token, index, guildId, channelId, mute, deaf, stream) {
+                this.token = token;
+                this.index = index;
+                this.guildId = guildId;
+                this.channelId = channelId;
+                this.mute = mute;
+                this.deaf = deaf;
+                this.stream = stream;
+                
+                this.ws = null;
+                this.heartbeatInterval = null;
+                this.lastActive = Date.now();
+                this.running = true;
+                this.username = `Token_${token.slice(0, 8)}`;
+            }
 
-                if (!response.ok) throw new Error("ID Kênh không tồn tại hoặc tài khoản không có quyền vào!");
-                const channelData = await response.json();
-                const guildId = channelData.guild_id;
+            updateStatus(state, colorClass, text) {
+                const indicator = document.getElementById(`status-indicator-${this.index}`);
+                const badge = document.getElementById(`status-badge-${this.index}`);
+                const userDisplay = document.getElementById(`username-display-${this.index}`);
 
-                updateStatus("Đang mở cổng Gateway kết nối...", "warning");
+                if (indicator) {
+                    indicator.className = `absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-cyber-card ${colorClass}`;
+                }
+                if (badge) {
+                    badge.innerText = text.toUpperCase();
+                    badge.className = `text-[10px] font-bold px-2 py-0.5 rounded bg-neutral-900 ${colorClass.replace('bg-', 'text-')}`;
+                }
+            }
 
-                ws = new WebSocket("wss://gateway.discord.gg/?v=9&encoding=json");
+            async connect() {
+                if (!this.running) return;
 
-                ws.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
+                addLog(this.username, "Đang kết nối WebSocket đến Gateway Discord...", "gray");
+                this.updateStatus('connecting', 'bg-yellow-500', 'CONNECTING');
 
-                    if (data.op === 10) {
-                        const interval = data.d.heartbeat_interval;
-                        heartbeatInterval = setInterval(() => {
-                            ws.send(JSON.stringify({ op: 1, d: null }));
-                        }, interval);
+                try {
+                    this.ws = new WebSocket("wss://gateway.discord.gg/?v=10&encoding=json");
+                    
+                    this.ws.onopen = () => {
+                        this.identify();
+                    };
 
-                        ws.send(JSON.stringify({
-                            op: 2,
-                            d: {
-                                token: globalToken,
-                                capabilities: 16381,
-                                properties: { os: "Windows", browser: "Chrome", device: "" },
-                                presence: { status: "online", afk: false },
-                                compress: false,
-                                client_state: { guild_versions: {}, highest_last_message_id: "0", read_state_version: 0, user_guild_settings_version: -1, user_settings_version: -1, private_channels_version: "0", api_code_version: 0 }
+                    this.ws.onmessage = async (event) => {
+                        const message = JSON.parse(event.data);
+                        await this.handleMessage(message);
+                    };
+
+                    this.ws.onerror = (err) => {
+                        console.error("WS Error:", err);
+                    };
+
+                    this.ws.onclose = (event) => {
+                        clearInterval(this.heartbeatInterval);
+                        if (event.code === 4004) {
+                            addLog(this.username, "Lỗi 4004: Token không chính xác hoặc đã bị vô hiệu hóa!", "red");
+                            this.updateStatus('dead', 'bg-red-500', 'DEAD/ERROR');
+                            this.running = false;
+                            updateStats();
+                        } else {
+                            if (this.running) {
+                                addLog(this.username, "Mất kết nối đột ngột, đang tự động kết nối lại sau 5s...", "yellow");
+                                this.updateStatus('reconnecting', 'bg-yellow-500', 'RECONNECTING');
+                                setTimeout(() => this.connect(), 5000);
                             }
-                        }));
-                    }
-
-                    if (data.t === "READY") {
-                        ws.send(JSON.stringify({
-                            op: 4,
-                            d: {
-                                guild_id: guildId,
-                                channel_id: channelId,
-                                self_mute: true,
-                                self_deaf: false
-                            }
-                        }));
-                        updateStatus(`Đã treo trong phòng [${channelData.name || channelId}]`, "success");
-                    }
-                };
-
-                ws.onerror = () => {
-                    updateStatus("Lỗi mạng WebSocket!", "error");
-                    stopBot();
-                };
-
-                ws.onclose = () => {
-                    updateStatus("Đã ngắt kết nối.", "error");
-                    ws = null;
-                };
-
-            } catch (err) {
-                updateStatus(err.message, "error");
-                ws = null;
-            }
-        }
-
-        function stopBot() {
-            updateStatus("Đang tiến hành tắt bot...", "warning");
-
-            if (heartbeatInterval) {
-                clearInterval(heartbeatInterval);
-                heartbeatInterval = null;
+                        }
+                    };
+                } catch (e) {
+                    addLog(this.username, `Lỗi khởi tạo cổng kết nối: ${e.message}`, "red");
+                    this.updateStatus('dead', 'bg-red-500', 'DEAD');
+                }
             }
 
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
+            async identify() {
+                const payload = {
+                    op: 2,
+                    d: {
+                        token: this.token,
+                        intents: 0,
+                        properties: {
+                            os: "Windows",
+                            browser: "Discord Client",
+                            device: "Discord Client"
+                        }
+                    }
+                };
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify(payload));
+                }
+            }
+
+            startHeartbeat(intervalMs) {
+                clearInterval(this.heartbeatInterval);
+                this.heartbeatInterval = setInterval(() => {
+                    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                        this.ws.send(JSON.stringify({ op: 1, d: null }));
+                    }
+                }, intervalMs);
+            }
+
+            async joinVoice() {
+                const payload = {
                     op: 4,
-                    d: { guild_id: null, channel_id: null, self_mute: true, self_deaf: false }
-                }));
-                setTimeout(() => {
-                    ws.close();
-                    ws = null;
-                }, 400);
-            } else {
-                ws = null;
-                updateStatus("Bot chưa được kích hoạt!", "error");
+                    d: {
+                        guild_id: this.guildId,
+                        channel_id: this.channelId,
+                        self_mute: this.mute,
+                        self_deaf: this.deaf,
+                        self_video: this.stream,
+                        self_stream: this.stream
+                    }
+                };
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify(payload));
+                    this.lastActive = Date.now();
+                    addLog(this.username, "Đã gửi tín hiệu tham gia phòng Voice Discord!", "green");
+                    this.updateStatus('voice', 'bg-purple-500', 'HANGING VOICE');
+                    updateStats();
+
+                    if (this.stream) {
+                        setTimeout(() => {
+                            const streamPayload = {
+                                op: 18,
+                                d: {
+                                    type: "guild",
+                                    guild_id: this.guildId,
+                                    channel_id: this.channelId,
+                                    preferred_region: "vietnam",
+                                    quality: 0,
+                                    framerate: 15,
+                                    width: 854,
+                                    height: 480
+                                }
+                            };
+                            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                                this.ws.send(JSON.stringify(streamPayload));
+                                addLog(this.username, "Đã bật luồng truyền tải Camera/Stream thành công!", "green");
+                            }
+                        }, 1000);
+                    }
+                }
             }
+
+            async handleMessage(message) {
+                const { op, t, d } = message;
+
+                if (op === 10) {
+                    const heartbeatInterval = d.heartbeat_interval;
+                    this.startHeartbeat(heartbeatInterval);
+                } else if (op === 0 && t === "READY") {
+                    this.username = d.user.username;
+                    
+                    const userDisplay = document.getElementById(`username-display-${this.index}`);
+                    const avatarContainer = document.getElementById(`avatar-container-${this.index}`);
+                    
+                    if (userDisplay) {
+                        userDisplay.innerText = `@${this.username}`;
+                    }
+                    if (avatarContainer && d.user.avatar) {
+                        avatarContainer.innerHTML = `
+                            <img src="https://cdn.discordapp.com/avatars/${d.user.id}/${d.user.avatar}.png?size=32" class="w-8 h-8 rounded-full border border-cyber-border object-cover">
+                            <span id="status-indicator-${this.index}" class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-cyber-card"></span>
+                        `;
+                    }
+
+                    addLog(this.username, "Đăng nhập xác thực tài khoản thành công!", "green");
+                    this.updateStatus('online', 'bg-emerald-500', 'READY / ONLINE');
+                    updateStats();
+
+                    await this.joinVoice();
+                } else if (op === 7 || op === 9) {
+                    addLog(this.username, "Cổng Gateway yêu cầu kết nối lại, đang tái thiết lập...", "yellow");
+                    await this.connect();
+                }
+            }
+
+            disconnect() {
+                this.running = false;
+                clearInterval(this.heartbeatInterval);
+                if (this.ws) {
+                    this.ws.close();
+                }
+                this.updateStatus('offline', 'bg-gray-500', 'OFFLINE');
+                updateStats();
+            }
+        }
+
+        // ================= HỆ THỐNG ĐIỀU KHIỂN CHẠY BOT =================
+        function startHanging() {
+            if (isRunning) return;
+
+            const guildId = document.getElementById('guild-id').value.trim();
+            const channelId = document.getElementById('channel-id').value.trim();
+
+            if (!guildId || !channelId) {
+                addLog("SYSTEM", "Vui lòng nhập đầy đủ ID Server (Guild) và ID Kênh Voice!", "red");
+                return;
+            }
+
+            if (tokens.length === 0) {
+                addLog("SYSTEM", "Cơ sở dữ liệu rỗng! Vui lòng nạp Token để tiếp tục.", "red");
+                return;
+            }
+
+            isRunning = true;
+            addLog("SYSTEM", "Bắt đầu kích hoạt toàn bộ bot treo voice ngầm...", "green");
+
+            document.getElementById('btn-start').disabled = true;
+            document.getElementById('btn-start').className = "w-full py-3 bg-neutral-900 border border-cyber-border text-gray-500 font-bold rounded-xl transition cursor-not-allowed flex items-center justify-center gap-2";
+            
+            document.getElementById('btn-stop').disabled = false;
+            document.getElementById('btn-stop').className = "w-full py-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-bold rounded-xl transition duration-200 shadow-lg shadow-red-500/10 flex items-center justify-center gap-2";
+
+            botInstances = tokens.map((token, index) => {
+                const bot = new DiscordVoiceWebsocket(
+                    token, 
+                    index, 
+                    guildId, 
+                    channelId, 
+                    !configOptions.mic,  
+                    !configOptions.loa,  
+                    configOptions.stream
+                );
+                bot.connect();
+                return bot;
+            });
+        }
+
+        function stopHanging() {
+            if (!isRunning) return;
+
+            isRunning = false;
+            addLog("SYSTEM", "Đang tiến hành ngắt kết nối và dừng treo voice...", "yellow");
+
+            botInstances.forEach(bot => bot.disconnect());
+            botInstances = [];
+
+            document.getElementById('btn-start').disabled = false;
+            document.getElementById('btn-start').className = "w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-black font-bold rounded-xl transition duration-200 shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2";
+            
+            document.getElementById('btn-stop').disabled = true;
+            document.getElementById('btn-stop').className = "w-full py-3 bg-neutral-900 border border-cyber-border text-gray-500 font-bold rounded-xl transition cursor-not-allowed flex items-center justify-center gap-2";
+            
+            updateTokenUI();
+            updateStats();
+        }
+
+        function updateStats() {
+            let online = 0;
+            let hanging = 0;
+            let dead = 0;
+
+            const badgeElements = document.querySelectorAll('[id^="status-badge-"]');
+            badgeElements.forEach(el => {
+                const text = el.innerText;
+                if (text === "READY / ONLINE") online++;
+                if (text === "HANGING VOICE") {
+                    online++;
+                    hanging++;
+                }
+                if (text === "DEAD/ERROR" || text === "DEAD") dead++;
+            });
+
+            document.getElementById('stat-online').innerText = online;
+            document.getElementById('stat-hanging').innerText = hanging;
+            document.getElementById('stat-dead').innerText = dead;
         }
     </script>
 </body>
